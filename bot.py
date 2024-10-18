@@ -1,27 +1,35 @@
 import os
-from telegram.ext import Updater, CommandHandler
+from telegram.ext import Updater, CommandHandler, MessageHandler, Filters
 
-# Define a start command
+# Обработка команды /start
 def start(update, context):
-    update.message.reply_text('Hello! I am your Telegram bot.')
+    update.message.reply_text('Привет! Я ваш Telegram бот. Чем могу помочь?')
 
-# Main function to start the bot
+# Обработка команды /help
+def help_command(update, context):
+    update.message.reply_text('Вы можете использовать следующие команды:\n/start - Начать работу с ботом\n/help - Получить помощь')
+
+# Эхо-ответ на любое текстовое сообщение
+def echo(update, context):
+    update.message.reply_text(f'Вы сказали: {update.message.text}')
+
 def main():
+    # Получаем токен из переменной окружения
     token = os.getenv('TELEGRAM_TOKEN')
     
-    # Create the Updater and pass it your bot's token
+    # Создаем Updater и передаем токен
     updater = Updater(token, use_context=True)
-
-    # Get the dispatcher to register handlers
     dp = updater.dispatcher
 
-    # Register a handler for the /start command
+    # Регистрируем команды и обработчики сообщений
     dp.add_handler(CommandHandler("start", start))
+    dp.add_handler(CommandHandler("help", help_command))
+    dp.add_handler(MessageHandler(Filters.text & ~Filters.command, echo))
 
-    # Start the Bot
+    # Запуск бота
     updater.start_polling()
 
-    # Run the bot until you press Ctrl-C or the process receives SIGINT, SIGTERM or SIGABRT
+    # Работаем до нажатия Ctrl-C или завершения процесса
     updater.idle()
 
 if __name__ == '__main__':
